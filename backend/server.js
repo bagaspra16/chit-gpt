@@ -8,6 +8,7 @@ const { apiLimiter } = require('./middleware/rateLimit.middleware');
 // Import Routes
 const authRoutes = require('./routes/auth.routes');
 const chatRoutes = require('./routes/chat.routes');
+const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.get('/health', (req, res) => res.status(200).json({ status: 'ok', time: new 
 // Mount API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/chats', chatRoutes);
+app.use('/api/admin', adminRoutes);
 
 // 404 handler
 app.use((req, res) => {

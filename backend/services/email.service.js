@@ -82,4 +82,42 @@ const sendPasswordResetEmail = async (toEmail, token) => {
   });
 };
 
-module.exports = { sendVerificationEmail, sendPasswordResetEmail };
+/**
+ * Send an update/newsletter email
+ */
+const sendUpdateEmail = async (toEmail, subject, htmlBody) => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8" />
+      <title>${subject}</title>
+    </head>
+    <body style="margin:0;padding:0;background:#0a0a0f;font-family:system-ui,sans-serif;color:#e2e8f0;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:40px auto;">
+        <tr>
+          <td style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:40px;">
+            ${htmlBody}
+            <hr style="border-color:rgba(255,255,255,0.08);margin:24px 0 16px;" />
+            <p style="color:#475569;font-size:11px;margin:0;">
+              You received this email because you have a ChitGPT account.
+              <a href="${env.FRONTEND_URL}" style="color:#7c3aed;">ChitGPT</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </body>
+    </html>
+  `;
+
+  await getTransporter().sendMail({
+    from: env.EMAIL_FROM,
+    to: toEmail,
+    subject,
+    html,
+  });
+
+  console.info(`[Email] Update email sent to ${toEmail}`);
+};
+
+module.exports = { sendVerificationEmail, sendPasswordResetEmail, sendUpdateEmail };

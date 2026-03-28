@@ -83,3 +83,42 @@ DROP TRIGGER IF EXISTS trg_message_updates_chat ON messages;
 CREATE TRIGGER trg_message_updates_chat
   AFTER INSERT ON messages
   FOR EACH ROW EXECUTE FUNCTION update_chat_on_message();
+
+-- ============================================================
+-- ADMIN: is_admin column on users
+-- ============================================================
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- ============================================================
+-- ANNOUNCEMENTS (admin notices to users)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS announcements (
+  id         UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+  title      VARCHAR(500)  NOT NULL,
+  content    TEXT          NOT NULL,
+  type       VARCHAR(20)   NOT NULL DEFAULT 'info' CHECK (type IN ('info', 'warning', 'update', 'maintenance')),
+  is_active  BOOLEAN       NOT NULL DEFAULT TRUE,
+  created_by UUID          REFERENCES users(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_announcements_active ON announcements(is_active, created_at DESC);
+
+-- ============================================================
+-- AI USAGE TRACKING
+-- ============================================================
+CREATE TABLE IF NOT EXISTS ai_usage (
+  id            UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id       UUID          REFERENCES users(id) ON DELETE SET NULL,
+  provider      VARCHAR(20)   NOT NULL,
+  model         VARCHAR(100)  NOT NULL,
+  tokens_in     INTEGER       NOT NULL DEFAULT 0,
+  tokens_out    INTEGER       NOT NULL DEFAULT 0,
+  latency_ms    INTEGER,
+  created_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_ai_usage_user_id    ON ai_usage(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_usage_created_at ON ai_usage(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ai_usage_provider   ON ai_usage(provider, created_at DESC);

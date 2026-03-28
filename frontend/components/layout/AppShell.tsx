@@ -60,7 +60,8 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({
   const densityClass = `density-${messageDensity}`;
 
   // Landing page and auth pages render without shell (no sidebar)
-  if (pathname === "/" || pathname.startsWith("/auth") || !isAuthenticated) {
+  // Admin pages have their own layout
+  if (pathname === "/" || pathname.startsWith("/auth") || pathname.startsWith("/admin") || !isAuthenticated) {
     return <>{children}</>;
   }
 

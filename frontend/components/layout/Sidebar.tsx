@@ -17,6 +17,7 @@ import {
   Check,
   X,
   Settings,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
@@ -397,6 +398,16 @@ export const Sidebar: React.FC = () => {
             <Settings className="w-4 h-4" />
             Settings
           </button>
+          {user?.is_admin && (
+            <Link
+              href="/admin/dashboard"
+              onClick={() => setMobileSidebarOpen(false)}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm text-amber-400/60 hover:text-amber-300 hover:bg-amber-500/[0.05] transition-all"
+            >
+              <Shield className="w-4 h-4" />
+              Admin Panel
+            </Link>
+          )}
           <div className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-white/[0.04] transition-all group">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-6 h-6 rounded-full bg-rose-500/20 border border-rose-500/25 flex items-center justify-center flex-shrink-0">

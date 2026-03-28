@@ -51,7 +51,7 @@ const login = async (req, res) => {
 
   try {
     const result = await db.query(
-      'SELECT id, email, password_hash, is_verified, is_guest FROM users WHERE email = $1',
+      'SELECT id, email, password_hash, is_verified, is_guest, is_admin FROM users WHERE email = $1',
       [email]
     );
 
@@ -79,6 +79,7 @@ const login = async (req, res) => {
       id: user.id,
       email: user.email,
       is_guest: false,
+      is_admin: user.is_admin || false,
     };
 
     const token = authService.signToken(tokenPayload);
@@ -147,6 +148,7 @@ const createGuest = async (req, res) => {
       id: user.id,
       email: null,
       is_guest: true,
+      is_admin: false,
     };
 
     const token = authService.signToken(tokenPayload);
@@ -162,8 +164,28 @@ const createGuest = async (req, res) => {
  * Get current user profile from token context
  */
 const me = async (req, res) => {
-  // req.user is set by auth middleware
-  return response.success(res, { user: req.user });
+  try {
+    const result = await db.query(
+      'SELECT id, email, is_guest, is_admin, created_at FROM users WHERE id = $1',
+      [req.user.id],
+    );
+    if (result.rowCount === 0) {
+      return response.unauthorized(res, 'User not found');
+    }
+    const u = result.rows[0];
+    return response.success(res, {
+      user: {
+        id: u.id,
+        email: u.email,
+        is_guest: u.is_guest,
+        is_admin: u.is_admin,
+        created_at: u.created_at,
+      },
+    });
+  } catch (err) {
+    console.error('[Auth] Me Error:', err);
+    return response.error(res, 'Failed to fetch user');
+  }
 };
 
 module.exports = { register, login, verifyEmail, createGuest, me };

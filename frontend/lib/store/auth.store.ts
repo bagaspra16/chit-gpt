@@ -5,6 +5,7 @@ export interface User {
   id: string;
   email: string | null;
   is_guest: boolean;
+  is_admin?: boolean;
 }
 
 interface AuthState {
