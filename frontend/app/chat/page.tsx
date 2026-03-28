@@ -8,7 +8,7 @@ import { Loader2, Sparkles } from "lucide-react"
 
 export default function ChatRootPage() {
   const router = useRouter()
-  const { chats, setChats, clearActiveChat } = useChatStore()
+  const { setChats, clearActiveChat } = useChatStore()
   
   React.useEffect(() => {
     let mounted = true;

@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useLoadingStore } from "@/lib/store/loading.store";
-import { Sparkles } from "lucide-react";
 import { MorphingSquare } from "@/components/ui/morphing-square";
 
 /* ── Thin NProgress-style top bar (no shimmer) ──────────────── */
@@ -49,23 +48,6 @@ const TopBar: React.FC<{ active: boolean; leaving: boolean }> = ({
   );
 };
 
-/* ── Spinner ring ───────────────────────────────────────────── */
-const SpinnerRing: React.FC = () => (
-  <div className="relative w-12 h-12">
-    {/* Track */}
-    <div className="absolute inset-0 rounded-full border-2 border-rose-500/15" />
-    {/* Spinning arc */}
-    <div
-      className="absolute inset-0 rounded-full border-2 border-transparent border-t-rose-400"
-      style={{ animation: "loading-spin 0.72s linear infinite" }}
-    />
-    {/* Inner glow dot */}
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div className="w-1.5 h-1.5 rounded-full bg-rose-400/60" />
-    </div>
-  </div>
-);
-
 /* ── Floating orbs — rose / orange palette ──────────────────── */
 const MiniOrbs: React.FC = () => (
   <>
@@ -88,22 +70,6 @@ const MiniOrbs: React.FC = () => (
       }}
     />
   </>
-);
-
-/* ── Pulsing brand icon ─────────────────────────────────────── */
-const BrandIcon: React.FC = () => (
-  <div
-    className="w-14 h-14 rounded-2xl flex items-center justify-center"
-    style={{
-      background: "rgba(225,29,72,0.10)",
-      border: "1px solid rgba(251,113,133,0.22)",
-      boxShadow:
-        "0 0 24px rgba(225,29,72,0.14), inset 0 1px 0 rgba(255,255,255,0.06)",
-      animation: "brand-pulse 2.4s ease-in-out infinite",
-    }}
-  >
-    <Sparkles className="w-6 h-6 text-rose-400" />
-  </div>
 );
 
 /* ── Dot ellipsis ───────────────────────────────────────────── */
