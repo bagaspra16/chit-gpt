@@ -43,18 +43,25 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
-const server = app.listen(env.PORT, () => {
-  console.log(`[Server] ChitGPT backend listening on port ${env.PORT} in ${env.NODE_ENV} mode.`);
-});
+// Start Server (Hanya jalan di lokal/VM, di Vercel Node runtime dia di-bypass)
+let server;
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  server = app.listen(process.env.PORT || env.PORT || 3001, () => {
+    console.log(`[Server] ChitGPT backend listening on port ${env.PORT} in ${env.NODE_ENV} mode.`);
+  });
+}
 
 // Graceful shutdown handling
 const gracefulShutdown = () => {
   console.log('[Server] Received kill signal, shutting down gracefully.');
-  server.close(() => {
-    console.log('[Server] Closed out remaining connections.');
+  if (server) {
+    server.close(() => {
+      console.log('[Server] Closed out remaining connections.');
+      process.exit(0);
+    });
+  } else {
     process.exit(0);
-  });
+  }
 
   setTimeout(() => {
     console.error('[Server] Could not close connections in time, forcefully shutting down');
