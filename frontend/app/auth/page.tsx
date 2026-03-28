@@ -110,7 +110,7 @@ export default function AuthPage() {
 
         <GlassCard
           intensity="high"
-          className="p-8 w-full border border-white/10"
+          className="p-6 sm:p-8 w-full border border-white/10"
         >
           {error && (
             <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-lg">

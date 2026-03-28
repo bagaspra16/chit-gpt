@@ -12,6 +12,13 @@ export const metadata: Metadata = {
   description: "Production grade AI chat application interface",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{

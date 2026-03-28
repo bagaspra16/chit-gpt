@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuthStore } from "@/lib/store/auth.store";
 import { useChatStore } from "@/lib/store/chat.store";
 import { useLoadingStore } from "@/lib/store/loading.store";
+import { useUIStore } from "@/lib/store/ui.store";
 import {
   MessageSquarePlus,
   LogOut,
@@ -63,6 +64,7 @@ const ChatItem: React.FC<{
   onRename: (id: string, title: string) => void;
   onSwitchLoading: () => void;
 }> = React.memo(({ chat, isActive, onDelete, onRename, onSwitchLoading }) => {
+  const setMobileSidebarOpen = useUIStore((s) => s.setMobileSidebarOpen);
   const [editing, setEditing] = React.useState(false);
   const [deleting, setDeleting] = React.useState(false);
   const [draft, setDraft] = React.useState(chat.title);
@@ -117,6 +119,7 @@ const ChatItem: React.FC<{
           className="flex-1 truncate min-w-0"
           onClick={() => {
             if (!isActive) onSwitchLoading();
+            setMobileSidebarOpen(false);
           }}
         >
           {chat.title}
@@ -186,6 +189,7 @@ export const Sidebar: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { logout, user } = useAuthStore();
+  const { isMobileSidebarOpen, setMobileSidebarOpen } = useUIStore();
   const {
     chats,
     setChats,
@@ -232,6 +236,7 @@ export const Sidebar: React.FC = () => {
       addChat(chat);
       clearActiveChat();
       router.push(`/chat/${chat.id}`);
+      setMobileSidebarOpen(false);
       // stopLoading is called automatically by AppShell pathname watcher
     } catch (e) {
       console.error(e);
@@ -286,7 +291,21 @@ export const Sidebar: React.FC = () => {
 
   return (
     <>
-      <aside className="glass-subtle h-full w-64 md:w-[17rem] flex-shrink-0 flex flex-col border-r border-white/[0.06] rounded-none">
+      {/* Mobile Backdrop */}
+      {isMobileSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/80 backdrop-blur-sm md:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+      <aside
+        className={cn(
+          "glass-subtle h-full w-[17rem] flex-shrink-0 flex flex-col border-r border-white/[0.06] rounded-none z-50",
+          "absolute md:relative top-0 left-0 bottom-0",
+          "transition-transform duration-300 ease-in-out",
+          isMobileSidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        )}
+      >
         {/* Brand */}
         <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.05]">
           <div className="w-7 h-7 rounded-lg bg-rose-500/15 border border-rose-500/25 flex items-center justify-center">

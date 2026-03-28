@@ -1,9 +1,10 @@
 "use client";
 import * as React from "react";
-import { Pencil, Check, X, Trash2 } from "lucide-react";
+import { Pencil, Check, X, Trash2, Menu } from "lucide-react";
 
 import api from "@/lib/api";
 import { useChatStore } from "@/lib/store/chat.store";
+import { useUIStore } from "@/lib/store/ui.store";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -13,6 +14,7 @@ interface Props {
 
 export const ChatHeader: React.FC<Props> = ({ chatId, title }) => {
   const { updateChatTitle, removeChat, clearActiveChat } = useChatStore();
+  const setMobileSidebarOpen = useUIStore((s) => s.setMobileSidebarOpen);
   const router = useRouter();
   const [editing, setEditing] = React.useState(false);
   const [draft, setDraft] = React.useState(title);
@@ -64,6 +66,15 @@ export const ChatHeader: React.FC<Props> = ({ chatId, title }) => {
 
   return (
     <div className="flex items-center gap-3 px-5 py-3 border-b border-white/[0.06] bg-black/20 backdrop-blur-sm">
+      {/* Mobile Drawer Toggle */}
+      <button
+        onClick={() => setMobileSidebarOpen(true)}
+        className="md:hidden p-1.5 -ml-2 rounded-md text-white/50 hover:text-white/90 hover:bg-white/[0.06] transition-all"
+        title="Open sidebar"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
       <div className="flex-1 min-w-0 flex items-center gap-2">
         {editing ? (
           <input

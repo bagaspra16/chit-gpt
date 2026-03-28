@@ -83,10 +83,10 @@ const Nav: React.FC<{
   onGuest: () => void;
   guestLoading: boolean;
 }> = ({ isAuthenticated, onGuest, guestLoading }) => (
-  <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-4">
+  <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 sm:px-6 md:px-10 py-4">
     {/* Brand pill */}
     <div
-      className="flex items-center gap-2.5"
+      className="flex flex-shrink-0 items-center gap-2.5"
       style={{
         background: "rgba(255,255,255,0.04)",
         border: "1px solid rgba(255,255,255,0.10)",
@@ -132,13 +132,13 @@ const Nav: React.FC<{
           <button
             onClick={onGuest}
             disabled={guestLoading}
-            className="text-sm text-white/50 hover:text-white/80 transition-colors px-3 py-1.5 rounded-xl hover:bg-white/[0.05] disabled:opacity-40"
+            className="text-xs sm:text-sm whitespace-nowrap text-white/50 hover:text-white/80 transition-colors px-2 sm:px-3 py-1.5 rounded-xl hover:bg-white/[0.05] disabled:opacity-40"
           >
             {guestLoading ? "Starting…" : "Try as guest"}
           </button>
           <Link
             href="/auth"
-            className="flex items-center gap-1.5 text-sm font-semibold px-4 py-1.5 rounded-xl text-white transition-all hover:brightness-110"
+            className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-semibold px-3 sm:px-4 py-1.5 rounded-xl text-white transition-all hover:brightness-110 whitespace-nowrap"
             style={{
               background:
                 "linear-gradient(135deg, rgba(225,29,72,0.90), rgba(249,115,22,0.80))",

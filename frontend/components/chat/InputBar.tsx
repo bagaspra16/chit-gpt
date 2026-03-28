@@ -49,7 +49,7 @@ export const InputBar: React.FC<Props> = ({
   const nearLimit = charCount > 18000;
 
   return (
-    <div className="relative w-full max-w-3xl mx-auto px-4 pb-4">
+    <div className="relative w-full max-w-3xl mx-auto px-4 pb-4 md:pb-6">
       <div
         className={cn(
           "relative flex items-end gap-2 p-2 rounded-2xl transition-all duration-200",
