@@ -37,6 +37,7 @@ export const ChatWindow: React.FC<Props> = ({ chatId }) => {
     useCustomKey,
     customGeminiKey,
     customOpenAIKey,
+    customGroqKey,
     preferredProvider,
     preferredModel,
     customSystemPrompt,
@@ -109,6 +110,8 @@ export const ChatWindow: React.FC<Props> = ({ chatId }) => {
     const customApiKey = useCustomKey
       ? preferredProvider === "gemini"
         ? customGeminiKey || undefined
+        : preferredProvider === "groq"
+        ? customGroqKey || undefined
         : customOpenAIKey || undefined
       : undefined;
 

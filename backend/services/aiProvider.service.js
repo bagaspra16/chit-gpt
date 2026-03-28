@@ -5,6 +5,7 @@ const env = require("../config/env");
 // Lazy-load cached provider instances for the default (env-configured) provider
 let geminiProvider = null;
 let openaiProvider = null;
+let groqProvider = null;
 
 const getDefaultProvider = () => {
   const providerName = env.AI_PROVIDER;
@@ -12,6 +13,11 @@ const getDefaultProvider = () => {
   if (providerName === "openai") {
     if (!openaiProvider) openaiProvider = require("./openai.provider");
     return openaiProvider;
+  }
+
+  if (providerName === "groq") {
+    if (!groqProvider) groqProvider = require("./groq.provider");
+    return groqProvider;
   }
 
   // Default: Gemini
@@ -31,7 +37,7 @@ const getDefaultProvider = () => {
  * @param {function(string): void} opts.onComplete    Called with the full response when done
  * @param {function(Error): void}  opts.onError       Called on error
  * @param {string}   [opts.customApiKey]              Optional user-supplied API key
- * @param {string}   [opts.aiProvider]                Optional provider override ('gemini' | 'openai')
+ * @param {string}   [opts.aiProvider]                Optional provider override ('gemini' | 'openai' | 'groq')
  * @param {string}   [opts.model]                     Optional model name override
  */
 const streamCompletion = async (opts) => {
@@ -48,6 +54,8 @@ const streamCompletion = async (opts) => {
   let provider;
   if (providerName === "openai") {
     provider = require("./openai.provider");
+  } else if (providerName === "groq") {
+    provider = require("./groq.provider");
   } else {
     // Default: Gemini
     provider = require("./gemini.provider");

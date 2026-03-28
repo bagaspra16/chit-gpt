@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Modal } from "./Modal";
 import { useSettingsStore } from "@/lib/store/settings.store";
-import { Bot, Palette, Key, ChevronDown, RotateCcw, Check } from "lucide-react";
+import { Bot, Palette, Key, ChevronDown, RotateCcw, Check, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Tab = "ai" | "persona" | "display";
@@ -56,6 +56,17 @@ const modelOptions: Record<string, string[]> = {
     "gemini-pro-latest",
   ],
   openai: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-3.5-turbo"],
+  groq: [
+    "llama-3.3-70b-versatile",
+    "llama-3.1-8b-instant",
+    "meta-llama/llama-4-scout-17b-16e-instruct",
+    "groq/compound",
+    "groq/compound-mini",
+    "openai/gpt-oss-120b",
+    "openai/gpt-oss-20b",
+    "qwen/qwen3-32b",
+    "canopylabs/orpheus-v1-english"
+  ],
 };
 
 const GeminiIcon = ({ className }: { className?: string }) => (
@@ -119,8 +130,8 @@ export const SettingsModal: React.FC<Props> = ({ open, onClose }) => {
             {tab === "ai" && (
               <>
                 <Field label="AI Provider">
-                  <div className="grid grid-cols-2 gap-2">
-                    {(["gemini", "openai"] as const).map((p) => (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    {(["gemini", "openai", "groq"] as const).map((p) => (
                       <button
                         key={p}
                         onClick={() => {
@@ -141,6 +152,11 @@ export const SettingsModal: React.FC<Props> = ({ open, onClose }) => {
                             <>
                               <GeminiIcon className="w-4 h-4" />
                               Gemini
+                            </>
+                          ) : p === "groq" ? (
+                            <>
+                              <Zap className="w-4 h-4" />
+                              Groq
                             </>
                           ) : (
                             <>
@@ -210,6 +226,8 @@ export const SettingsModal: React.FC<Props> = ({ open, onClose }) => {
                       label={
                         settings.preferredProvider === "gemini"
                           ? "Gemini API Key"
+                          : settings.preferredProvider === "groq"
+                          ? "Groq API Key"
                           : "OpenAI API Key"
                       }
                       hint="Stored locally, never sent to our servers"
@@ -219,19 +237,23 @@ export const SettingsModal: React.FC<Props> = ({ open, onClose }) => {
                         value={
                           settings.preferredProvider === "gemini"
                             ? settings.customGeminiKey
+                            : settings.preferredProvider === "groq"
+                            ? settings.customGroqKey
                             : settings.customOpenAIKey
                         }
                         onChange={(e) =>
                           update(
                             settings.preferredProvider === "gemini"
                               ? { customGeminiKey: e.target.value }
+                              : settings.preferredProvider === "groq"
+                              ? { customGroqKey: e.target.value }
                               : { customOpenAIKey: e.target.value },
                           )
                         }
                         placeholder={
                           settings.preferredProvider === "gemini"
                             ? "AIzaSy..."
-                            : "sk-..."
+                            : "..."
                         }
                         className="input-glass w-full font-mono text-sm"
                       />

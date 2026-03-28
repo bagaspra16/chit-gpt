@@ -24,7 +24,7 @@ const streamMessageSchema = z.object({
     .min(1, "Message cannot be empty")
     .max(20000, "Message too long"),
   customApiKey: z.string().optional(),
-  aiProvider: z.enum(["gemini", "openai"]).optional(),
+  aiProvider: z.enum(["gemini", "openai", "groq"]).optional(),
   model: z.string().optional(),
 });
 

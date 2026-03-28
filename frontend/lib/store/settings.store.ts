@@ -3,13 +3,14 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 export type FontSize = "sm" | "base" | "lg";
 export type MessageDensity = "compact" | "comfortable" | "spacious";
-export type AIProvider = "gemini" | "openai";
+export type AIProvider = "gemini" | "openai" | "groq";
 
 export interface SettingsState {
   // Custom API keys
   useCustomKey: boolean;
   customGeminiKey: string;
   customOpenAIKey: string;
+  customGroqKey: string;
   // AI preferences
   preferredProvider: AIProvider;
   preferredModel: string;
@@ -30,6 +31,7 @@ const DEFAULTS = {
   useCustomKey: false,
   customGeminiKey: "",
   customOpenAIKey: "",
+  customGroqKey: "",
   preferredProvider: "gemini" as AIProvider,
   preferredModel: "",
   userName: "",

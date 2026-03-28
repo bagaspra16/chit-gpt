@@ -33,6 +33,8 @@ const env = {
   GEMINI_MODEL: optional("GEMINI_MODEL", "gemini-2.5-flash"),
   OPENAI_API_KEY: optional("OPENAI_API_KEY", ""),
   OPENAI_MODEL: optional("OPENAI_MODEL", "gpt-4o-mini"),
+  GROQ_API_KEY: optional("GROQ_API_KEY", ""),
+  GROQ_MODEL: optional("GROQ_MODEL", "llama-3.3-70b-versatile"),
   AI_PROVIDER: optional("AI_PROVIDER", "gemini"),
 
   // App
