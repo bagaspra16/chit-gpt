@@ -1,12 +1,12 @@
 'use strict';
 
-const { v4: uuidv4 } = require('uuid');
+const crypto = require('crypto');
 
 /**
  * Generate a new UUID v4
  * @returns {string}
  */
-const generateId = () => uuidv4();
+const generateId = () => crypto.randomUUID();
 
 /**
  * Validate UUID format
