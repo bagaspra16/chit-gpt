@@ -1,0 +1,277 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: #080810;
+        --surface: rgba(255, 255, 255, 0.03);
+        --surface-raised: rgba(255, 255, 255, 0.055);
+        --border: rgba(255, 255, 255, 0.08);
+        --border-bright: rgba(255, 255, 255, 0.14);
+        --text-primary: #f0f0f5;
+        --text-secondary: rgba(240, 240, 245, 0.5);
+        --text-muted: rgba(240, 240, 245, 0.28);
+        --accent: #fb7185;
+        --accent-glow: rgba(251, 113, 133, 0.18);
+        --radius: 14px;
+        /* Ambient orb colours */
+        --orb-1: rgba(225, 29, 72, 0.2);
+        --orb-2: rgba(249, 115, 22, 0.13);
+        --orb-3: rgba(251, 113, 133, 0.08);
+    }
+}
+
+@layer base {
+    * {
+        @apply border-[rgba(255,255,255,0.08)];
+        box-sizing: border-box;
+    }
+    html {
+        color-scheme: dark;
+    }
+    body {
+        background-color: var(--background);
+        color: var(--text-primary);
+        @apply antialiased selection:bg-rose-500/20 selection:text-rose-200;
+        font-feature-settings: "cv11", "ss01";
+        overflow-x: hidden;
+    }
+
+    /* ── Scrollbar ─────────────────────────────────────────── */
+    ::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+}
+
+@layer components {
+    /* ── Glass Panel ────────────────────────────────────────── */
+    .glass {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+    }
+    .glass-raised {
+        background: var(--surface-raised);
+        border: 1px solid var(--border-bright);
+        backdrop-filter: blur(24px) saturate(200%);
+        -webkit-backdrop-filter: blur(24px) saturate(200%);
+    }
+    .glass-subtle {
+        background: rgba(255, 255, 255, 0.015);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+    }
+
+    /* ── Glow effects ───────────────────────────────────────── */
+    .glow-indigo {
+        box-shadow:
+            0 0 30px rgba(129, 140, 248, 0.15),
+            0 0 60px rgba(99, 102, 241, 0.08);
+    }
+    .glow-sm {
+        box-shadow: 0 0 12px rgba(129, 140, 248, 0.12);
+    }
+
+    /* ── Interactive states ─────────────────────────────────── */
+    .pressable {
+        @apply transition-all duration-150 active:scale-[0.97];
+    }
+    .hover-glass {
+        @apply transition-all duration-200 hover:bg-white/[0.06] hover:border-white/[0.12];
+    }
+
+    /* ── Typography scale ───────────────────────────────────── */
+    .text-fs-sm {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+    .text-fs-base {
+        font-size: 15px;
+        line-height: 1.7;
+    }
+    .text-fs-lg {
+        font-size: 17px;
+        line-height: 1.75;
+    }
+
+    /* ── Message density ────────────────────────────────────── */
+    .density-compact .msg-bubble {
+        @apply mb-2 py-2;
+    }
+    .density-comfortable .msg-bubble {
+        @apply mb-5 py-3;
+    }
+    .density-spacious .msg-bubble {
+        @apply mb-8 py-4;
+    }
+
+    /* ── Code block ─────────────────────────────────────────── */
+    .code-block {
+        @apply rounded-xl overflow-hidden;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .code-block-header {
+        @apply flex items-center justify-between px-4 py-2 text-xs;
+        background: rgba(255, 255, 255, 0.04);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        color: var(--text-muted);
+    }
+
+    /* ── Input ──────────────────────────────────────────────── */
+    .input-glass {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+        @apply rounded-xl px-3 py-2 outline-none transition-all duration-200;
+        @apply focus:border-white/20 focus:bg-white/[0.06];
+        @apply placeholder:text-white/20;
+    }
+}
+
+/* ── Prose (markdown) ──────────────────────────────────────── */
+.prose-glass {
+    color: var(--text-primary);
+    line-height: 1.7;
+}
+.prose-glass p {
+    margin: 0 0 0.85em;
+}
+.prose-glass p:last-child {
+    margin-bottom: 0;
+}
+.prose-glass ul,
+.prose-glass ol {
+    margin: 0.5em 0 0.85em 1.4em;
+}
+.prose-glass li {
+    margin-bottom: 0.3em;
+}
+.prose-glass strong {
+    color: #e8e8f0;
+    font-weight: 600;
+}
+.prose-glass em {
+    color: rgba(240, 240, 245, 0.8);
+}
+.prose-glass h1,
+.prose-glass h2,
+.prose-glass h3 {
+    color: #f0f0f8;
+    font-weight: 600;
+    margin: 1.2em 0 0.5em;
+    line-height: 1.3;
+}
+.prose-glass h1 {
+    font-size: 1.4em;
+}
+.prose-glass h2 {
+    font-size: 1.2em;
+}
+.prose-glass h3 {
+    font-size: 1.05em;
+}
+.prose-glass hr {
+    border-color: rgba(255, 255, 255, 0.08);
+    margin: 1.2em 0;
+}
+.prose-glass blockquote {
+    border-left: 3px solid rgba(251, 113, 133, 0.5);
+    padding-left: 0.9em;
+    color: var(--text-secondary);
+    margin: 0.7em 0;
+}
+.prose-glass a {
+    color: #fda4af;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.prose-glass table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.8em 0;
+}
+.prose-glass th {
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.5em 0.8em;
+    text-align: left;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.prose-glass td {
+    padding: 0.4em 0.8em;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Animations ────────────────────────────────────────────── */
+@keyframes orb-drift-1 {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(60px, -40px) scale(1.05);
+    }
+    66% {
+        transform: translate(-30px, 60px) scale(0.95);
+    }
+}
+@keyframes orb-drift-2 {
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+    40% {
+        transform: translate(-80px, 50px) scale(1.08);
+    }
+    70% {
+        transform: translate(50px, -30px) scale(0.92);
+    }
+}
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes cursor-blink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+}
+.orb-1 {
+    animation: orb-drift-1 18s ease-in-out infinite;
+}
+.orb-2 {
+    animation: orb-drift-2 24s ease-in-out infinite;
+}
+.animate-fade-in-up {
+    animation: fade-in-up 0.3s ease forwards;
+}
+.cursor-blink::after {
+    content: "▋";
+    @apply text-indigo-400;
+    animation: cursor-blink 0.8s step-end infinite;
+}
