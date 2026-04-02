@@ -106,14 +106,15 @@ export const ChatWindow: React.FC<Props> = ({ chatId }) => {
     const ctrl = new AbortController();
     setAbortController(ctrl);
 
-    // Resolve custom key
-    const customApiKey = useCustomKey
-      ? preferredProvider === "gemini"
-        ? customGeminiKey || undefined
-        : preferredProvider === "groq"
-        ? customGroqKey || undefined
-        : customOpenAIKey || undefined
-      : undefined;
+    // Resolve custom key (LocalAI is free/self-hosted — no key required)
+    const customApiKey =
+      useCustomKey && preferredProvider !== "localai"
+        ? preferredProvider === "gemini"
+          ? customGeminiKey || undefined
+          : preferredProvider === "groq"
+          ? customGroqKey || undefined
+          : customOpenAIKey || undefined
+        : undefined;
 
     // Build extra system prompt suffix if userName set
     const systemSuffix = userName ? `\n\nThe user's name is ${userName}.` : "";

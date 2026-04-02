@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Modal } from "./Modal";
 import { useSettingsStore } from "@/lib/store/settings.store";
-import { Bot, Palette, Key, ChevronDown, RotateCcw, Check, Zap } from "lucide-react";
+import { Bot, Palette, Key, ChevronDown, RotateCcw, Check, Zap, Server } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Tab = "ai" | "persona" | "display";
@@ -47,6 +47,9 @@ const Field: React.FC<{
 );
 
 const modelOptions: Record<string, string[]> = {
+  localai: [
+    "Phi-3-mini-4k-instruct.Q4_0.gguf",
+  ],
   gemini: [
     "gemini-2.5-flash",
     "gemini-2.5-pro",
@@ -130,8 +133,8 @@ export const SettingsModal: React.FC<Props> = ({ open, onClose }) => {
             {tab === "ai" && (
               <>
                 <Field label="AI Provider">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    {(["gemini", "openai", "groq"] as const).map((p) => (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {(["localai", "gemini", "openai", "groq"] as const).map((p) => (
                       <button
                         key={p}
                         onClick={() => {
@@ -148,7 +151,15 @@ export const SettingsModal: React.FC<Props> = ({ open, onClose }) => {
                         )}
                       >
                         <span className="flex items-center justify-center gap-2">
-                          {p === "gemini" ? (
+                          {p === "localai" ? (
+                            <>
+                              <Server className="w-4 h-4" />
+                              <span className="flex flex-col items-start leading-none">
+                                <span>Local AI</span>
+                                <span className="text-[9px] opacity-60 font-normal">Free · Phi-3</span>
+                              </span>
+                            </>
+                          ) : p === "gemini" ? (
                             <>
                               <GeminiIcon className="w-4 h-4" />
                               Gemini
@@ -220,7 +231,7 @@ export const SettingsModal: React.FC<Props> = ({ open, onClose }) => {
                   </button>
                 </div>
 
-                {settings.useCustomKey && (
+                {settings.useCustomKey && settings.preferredProvider !== "localai" && (
                   <div className="space-y-3 animate-fade-in-up">
                     <Field
                       label={
@@ -258,6 +269,18 @@ export const SettingsModal: React.FC<Props> = ({ open, onClose }) => {
                         className="input-glass w-full font-mono text-sm"
                       />
                     </Field>
+                  </div>
+                )}
+
+                {settings.preferredProvider === "localai" && (
+                  <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
+                    <p className="text-xs text-emerald-400/80 font-medium flex items-center gap-1.5">
+                      <Server className="w-3.5 h-3.5" />
+                      No API key needed — Local AI is free &amp; self-hosted
+                    </p>
+                    <p className="text-xs text-white/30 mt-1">
+                      Powered by Phi-3 mini via GPT4All
+                    </p>
                   </div>
                 )}
               </>

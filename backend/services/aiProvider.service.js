@@ -3,6 +3,7 @@
 const env = require("../config/env");
 
 // Lazy-load cached provider instances for the default (env-configured) provider
+let localaiProvider = null;
 let geminiProvider = null;
 let openaiProvider = null;
 let groqProvider = null;
@@ -20,9 +21,14 @@ const getDefaultProvider = () => {
     return groqProvider;
   }
 
-  // Default: Gemini
-  if (!geminiProvider) geminiProvider = require("./gemini.provider");
-  return geminiProvider;
+  if (providerName === "gemini") {
+    if (!geminiProvider) geminiProvider = require("./gemini.provider");
+    return geminiProvider;
+  }
+
+  // Default: LocalAI (self-hosted Phi-3 mini)
+  if (!localaiProvider) localaiProvider = require("./localai.provider");
+  return localaiProvider;
 };
 
 /**
@@ -37,7 +43,7 @@ const getDefaultProvider = () => {
  * @param {function(string): void} opts.onComplete    Called with the full response when done
  * @param {function(Error): void}  opts.onError       Called on error
  * @param {string}   [opts.customApiKey]              Optional user-supplied API key
- * @param {string}   [opts.aiProvider]                Optional provider override ('gemini' | 'openai' | 'groq')
+ * @param {string}   [opts.aiProvider]                Optional provider override ('localai' | 'gemini' | 'openai' | 'groq')
  * @param {string}   [opts.model]                     Optional model name override
  */
 const streamCompletion = async (opts) => {
@@ -56,9 +62,11 @@ const streamCompletion = async (opts) => {
     provider = require("./openai.provider");
   } else if (providerName === "groq") {
     provider = require("./groq.provider");
-  } else {
-    // Default: Gemini
+  } else if (providerName === "gemini") {
     provider = require("./gemini.provider");
+  } else {
+    // Default: LocalAI (self-hosted Phi-3 mini)
+    provider = require("./localai.provider");
   }
 
   return provider.generateStream({

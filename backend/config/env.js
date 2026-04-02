@@ -29,13 +29,14 @@ const env = {
   EMAIL_FROM: optional("EMAIL_FROM", "ChitGPT <noreply@chitgpt.com>"),
 
   // AI Providers
+  LOCAL_AI_BASE_URL: optional("LOCAL_AI_BASE_URL", "https://noneleemosynary-subumbellated-yuonne.ngrok-free.dev"),
   GEMINI_API_KEY: optional("GEMINI_API_KEY", ""),
   GEMINI_MODEL: optional("GEMINI_MODEL", "gemini-2.5-flash"),
   OPENAI_API_KEY: optional("OPENAI_API_KEY", ""),
   OPENAI_MODEL: optional("OPENAI_MODEL", "gpt-4o-mini"),
   GROQ_API_KEY: optional("GROQ_API_KEY", ""),
   GROQ_MODEL: optional("GROQ_MODEL", "llama-3.3-70b-versatile"),
-  AI_PROVIDER: optional("AI_PROVIDER", "gemini"),
+  AI_PROVIDER: optional("AI_PROVIDER", "localai"),
 
   // App
   FRONTEND_URL: optional("FRONTEND_URL", "http://localhost:3000"),
