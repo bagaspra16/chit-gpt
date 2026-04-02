@@ -5,40 +5,62 @@
  * API: https://noneleemosynary-subumbellated-yuonne.ngrok-free.dev
  *
  * Implements the AIProvider interface (generateStream + generate).
- * No API key required — free, self-hosted, always available.
+ * Uses the OpenAI SDK (already installed) with a custom baseURL.
+ * No API key required — free, self-hosted.
  */
+
+const OpenAI = require("openai");
+const env = require("../config/env");
 
 const LOCAL_AI_BASE_URL =
-  process.env.LOCAL_AI_BASE_URL ||
+  env.LOCAL_AI_BASE_URL ||
   "https://noneleemosynary-subumbellated-yuonne.ngrok-free.dev";
 
-const LOCAL_AI_MODEL = "Phi-3-mini-4k-instruct.Q4_0.gguf"; // returned by /v1/models
+// The model name returned by GET /v1/models on the self-hosted server
+const LOCAL_AI_MODEL = "Phi-3-mini-4k-instruct.Q4_0.gguf";
+
+// Singleton client — no API key needed, use a dummy string so OpenAI SDK is happy
+let client = null;
+const getClient = () => {
+  if (!client) {
+    client = new OpenAI({
+      baseURL: `${LOCAL_AI_BASE_URL}/v1`,
+      apiKey: "localai", // dummy — server ignores it
+      timeout: 120_000,  // 2 minutes (Phi-3 mini is slow on CPU)
+      maxRetries: 0,
+    });
+  }
+  return client;
+};
 
 /**
- * Map a fetch/network error to a friendly user-facing message.
+ * Map a raw error to a friendly user-facing message.
  */
 const friendlyError = (err) => {
-  const msg = err.message || "";
+  const msg = (err.message || "").toLowerCase();
+  const status = err.status || err.statusCode || 0;
+
   if (
-    msg.toLowerCase().includes("failed to fetch") ||
-    msg.toLowerCase().includes("econnrefused") ||
-    msg.toLowerCase().includes("network") ||
-    msg.toLowerCase().includes("fetch")
+    msg.includes("econnrefused") ||
+    msg.includes("fetch failed") ||
+    msg.includes("network") ||
+    msg.includes("enotfound") ||
+    msg.includes("timeout") ||
+    msg.includes("timed out")
   ) {
-    return "Local AI service is unreachable. Please check your network or try another provider.";
+    return "Local AI is unreachable or timed out. The model may be busy — please try again in a moment.";
   }
-  if (msg.includes("429") || msg.toLowerCase().includes("rate")) {
+  if (status === 429 || msg.includes("rate limit")) {
     return "Local AI rate limit reached — please wait a moment and try again.";
   }
-  if (msg.includes("422")) {
-    return "Local AI rejected the request. Please try again.";
+  if (status === 422) {
+    return "Local AI rejected the request — please try again.";
   }
   return "Local AI generation failed. Please try again.";
 };
 
 /**
- * Build the messages array for the /v1/chat/completions endpoint.
- * The API uses OpenAI-compatible format: {role, content}[]
+ * Build the messages array for the chat/completions endpoint.
  */
 const buildMessages = (messages, systemPrompt) => {
   const result = [];
@@ -52,8 +74,7 @@ const buildMessages = (messages, systemPrompt) => {
 };
 
 /**
- * Streaming completion — calls POST /v1/chat/completions with stream: true.
- * Falls back to non-streaming if SSE is not supported.
+ * Streaming completion using OpenAI SDK → POST /v1/chat/completions stream:true
  */
 const generateStream = async ({
   messages,
@@ -61,67 +82,33 @@ const generateStream = async ({
   onChunk,
   onComplete,
   onError,
-  // customApiKey and model are accepted but LocalAI doesn't need an API key
   model: modelOverride,
+  // customApiKey intentionally ignored — LocalAI needs no key
 }) => {
-  const modelName = modelOverride || LOCAL_AI_MODEL;
-
   try {
-    const body = JSON.stringify({
-      messages: buildMessages(
-        messages,
-        systemPrompt ||
-          "You are ChitGPT, a helpful and concise AI assistant. Powered by a local Phi-3 mini model."
-      ),
+    const openai = getClient();
+    const modelName = modelOverride || LOCAL_AI_MODEL;
+
+    const formattedMessages = buildMessages(
+      messages,
+      systemPrompt ||
+        "You are ChitGPT, a helpful and concise AI assistant. Powered by a local Phi-3 mini model."
+    );
+
+    const stream = await openai.chat.completions.create({
+      model: modelName,
+      messages: formattedMessages,
       max_tokens: 512,
       temperature: 0.7,
       stream: true,
     });
 
-    const response = await fetch(`${LOCAL_AI_BASE_URL}/v1/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "ngrok-skip-browser-warning": "true",
-      },
-      body,
-    });
-
-    if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      throw new Error(`LocalAI HTTP ${response.status}: ${text}`);
-    }
-
-    // Parse SSE stream
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder("utf-8");
-    let buffer = "";
     let fullText = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? ""; // keep incomplete line
-
-      for (const line of lines) {
-        const trimmed = line.trim();
-        if (!trimmed || !trimmed.startsWith("data:")) continue;
-        const data = trimmed.slice(5).trim();
-        if (data === "[DONE]") break;
-
-        try {
-          const parsed = JSON.parse(data);
-          const delta = parsed.choices?.[0]?.delta?.content || "";
-          if (delta) {
-            fullText += delta;
-            onChunk(delta);
-          }
-        } catch {
-          // non-JSON line — skip
-        }
+    for await (const chunk of stream) {
+      const delta = chunk.choices?.[0]?.delta?.content || "";
+      if (delta) {
+        fullText += delta;
+        onChunk(delta);
       }
     }
 
@@ -135,40 +122,31 @@ const generateStream = async ({
 };
 
 /**
- * Non-streaming fallback — calls POST /v1/chat/completions with stream: false.
+ * Non-streaming fallback — POST /v1/chat/completions stream:false
  */
 const generate = async ({
   messages,
   systemPrompt,
   model: modelOverride,
 }) => {
+  const openai = getClient();
   const modelName = modelOverride || LOCAL_AI_MODEL;
 
-  const response = await fetch(`${LOCAL_AI_BASE_URL}/v1/chat/completions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "ngrok-skip-browser-warning": "true",
-    },
-    body: JSON.stringify({
-      messages: buildMessages(
-        messages,
-        systemPrompt ||
-          "You are ChitGPT, a helpful and concise AI assistant. Powered by a local Phi-3 mini model."
-      ),
-      max_tokens: 512,
-      temperature: 0.7,
-      stream: false,
-    }),
+  const formattedMessages = buildMessages(
+    messages,
+    systemPrompt ||
+      "You are ChitGPT, a helpful and concise AI assistant. Powered by a local Phi-3 mini model."
+  );
+
+  const response = await openai.chat.completions.create({
+    model: modelName,
+    messages: formattedMessages,
+    max_tokens: 512,
+    temperature: 0.7,
+    stream: false,
   });
 
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    throw new Error(`LocalAI HTTP ${response.status}: ${text}`);
-  }
-
-  const data = await response.json();
-  return data.choices?.[0]?.message?.content || "";
+  return response.choices?.[0]?.message?.content || "";
 };
 
 module.exports = { generateStream, generate };
